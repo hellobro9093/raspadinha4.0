@@ -1,4 +1,4 @@
-// Configuração da API
+// Nova API local - substitui a API externa https://r-client.dancsolutions.com/api
 const API_BASE = 'http://localhost:3001/api';
 
 // Função para fazer chamadas à API
@@ -17,7 +17,7 @@ async function apiCall(endpoint, options = {}) {
   return response.json();
 }
 
-// Funções da API
+// Exportar as mesmas funções que o sistema original usava
 export const api = {
   // Configurações
   async getSettings() {
@@ -39,10 +39,18 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data)
     });
+  },
+
+  // Funções adicionais que podem ser necessárias
+  async updatePurchaseStatus(id, status) {
+    return apiCall(`/purchases/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
   }
 };
 
-// Aplicar configurações de estilo
+// Aplicar configurações de estilo dinamicamente
 export async function applySettings() {
   try {
     const settings = await api.getSettings();
@@ -75,3 +83,7 @@ export async function applySettings() {
     return {};
   }
 }
+
+// Manter compatibilidade com o código existente
+window.api = api;
+window.applySettings = applySettings;

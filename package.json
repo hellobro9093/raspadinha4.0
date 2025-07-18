@@ -3,6 +3,8 @@
      "dev": "vite",
      "build": "vite build",
 -    "preview": "vite preview"
+    "server": "nodemon server/index.js",
+    "start": "node server/index.js"
 +    "preview": "vite preview",
 +    "server": "nodemon server/index.js",
 +    "start": "node server/index.js"

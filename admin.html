@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Rifas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center">Login Administrativo</h2>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                    <input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Senha:</label>
+                    <input type="password" id="loginPassword" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <h1 class="text-2xl font-bold text-gray-900">Painel Administrativo</h1>
+                    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-8">
+                    <button class="nav-btn py-4 px-2 border-b-2 border-blue-500 text-blue-600" data-tab="rifas">
+                        <i class="fas fa-ticket-alt mr-2"></i>Rifas
+                    </button>
+                    <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="purchases">
+                        <i class="fas fa-shopping-cart mr-2"></i>Compras
+                    </button>
+                    <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="settings">
+                        <i class="fas fa-cog mr-2"></i>Configurações
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content -->
+        <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <!-- Rifas Tab -->
+            <div id="rifasTab" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">Gerenciar Rifas</h2>
+                    <button id="addRifaBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-plus mr-2"></i>Nova Rifa
+                    </button>
+                </div>
+                <div id="rifasList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"></div>
+            </div>
+
+            <!-- Purchases Tab -->
+            <div id="purchasesTab" class="tab-content hidden">
+                <h2 class="text-xl font-semibold mb-6">Compras Realizadas</h2>
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rifa</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comprador</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Números</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchasesTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content hidden">
+                <h2 class="text-xl font-semibold mb-6">Configurações do Site</h2>
+                <div class="bg-white shadow rounded-lg p-6">
+                    <form id="settingsForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Título do Site</label>
+                                <input type="text" id="site_title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Número do WhatsApp</label>
+                                <input type="text" id="whatsapp_number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cor Primária</label>
+                                <input type="color" id="primary_color" class="w-full h-10 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cor Secundária</label>
+                                <input type="color" id="secondary_color" class="w-full h-10 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Chave PIX</label>
+                                <input type="text" id="pix_key" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
+                                <input type="file" id="logo_upload" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Informações Bancárias</label>
+                            <textarea id="bank_info" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                            Salvar Configurações
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Rifa Modal -->
+    <div id="rifaModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-96 max-h-screen overflow-y-auto">
+            <h2 id="rifaModalTitle" class="text-2xl font-bold mb-6">Nova Rifa</h2>
+            <form id="rifaForm">
+                <input type="hidden" id="rifaId">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Título:</label>
+                    <input type="text" id="rifaTitle" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Descrição:</label>
+                    <textarea id="rifaDescription" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" rows="3"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Preço por Número:</label>
+                    <input type="number" id="rifaPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Total de Números:</label>
+                    <input type="number" id="rifaTotalNumbers" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Imagem:</label>
+                    <input type="file" id="rifaImage" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
+                    <select id="rifaStatus" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="active">Ativa</option>
+                        <option value="inactive">Inativa</option>
+                        <option value="completed">Finalizada</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelRifaBtn" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let authToken = localStorage.getItem('adminToken');
+
+        // Elementos DOM
+        const loginModal = document.getElementById('loginModal');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Verificar autenticação
+        if (authToken) {
+            showAdminPanel();
+        }
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('adminToken', authToken);
+                    showAdminPanel();
+                } else {
+                    alert(data.error || 'Erro no login');
+                }
+            } catch (error) {
+                alert('Erro de conexão');
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('adminToken');
+            authToken = null;
+            loginModal.classList.remove('hidden');
+            adminPanel.classList.add('hidden');
+        });
+
+        // Navegação entre abas
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                
+                // Atualizar botões
+                navBtns.forEach(b => {
+                    b.classList.remove('border-blue-500', 'text-blue-600');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                btn.classList.add('border-blue-500', 'text-blue-600');
+                btn.classList.remove('border-transparent', 'text-gray-500');
+
+                // Mostrar conteúdo
+                tabContents.forEach(content => content.classList.add('hidden'));
+                document.getElementById(`${tab}Tab`).classList.remove('hidden');
+
+                // Carregar dados da aba
+                if (tab === 'rifas') loadRifas();
+                else if (tab === 'purchases') loadPurchases();
+                else if (tab === 'settings') loadSettings();
+            });
+        });
+
+        function showAdminPanel() {
+            loginModal.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+            loadRifas();
+        }
+
+        // Funções de API
+        async function apiCall(endpoint, options = {}) {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                ...options
+            };
+
+            const response = await fetch(`${API_BASE}${endpoint}`, config);
+            if (!response.ok) {
+                throw new Error('Erro na requisição');
+            }
+            return response.json();
+        }
+
+        // Carregar rifas
+        async function loadRifas() {
+            try {
+                const rifas = await apiCall('/rifas');
+                const rifasList = document.getElementById('rifasList');
+                
+                rifasList.innerHTML = rifas.map(rifa => `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        ${rifa.image_url ? `<img src="http://localhost:3001${rifa.image_url}" class="w-full h-48 object-cover">` : ''}
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">${rifa.title}</h3>
+                            <p class="text-gray-600 mb-2">${rifa.description || ''}</p>
+                            <p class="text-blue-600 font-bold">R$ ${rifa.price.toFixed(2)} por número</p>
+                            <p class="text-sm text-gray-500">${rifa.total_numbers} números disponíveis</p>
+                            <div class="mt-4 flex space-x-2">
+                                <button onclick="editRifa(${rifa.id})" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
+                                    Editar
+                                </button>
+                                <button onclick="deleteRifa(${rifa.id})" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
+                                    Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Erro ao carregar rifas:', error);
+            }
+        }
+
+        // Carregar compras
+        async function loadPurchases() {
+            try {
+                const purchases = await apiCall('/purchases');
+                const tbody = document.getElementById('purchasesTableBody');
+                
+                tbody.innerHTML = purchases.map(purchase => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${purchase.rifa_title}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${purchase.buyer_name}<br>
+                            <span class="text-gray-500">${purchase.buyer_phone}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${JSON.parse(purchase.numbers).join(', ')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            R$ ${purchase.total_amount.toFixed(2)}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full ${
+                                purchase.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                            }">
+                                ${purchase.status === 'confirmed' ? 'Confirmado' :
+                                  purchase.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <select onchange="updatePurchaseStatus(${purchase.id}, this.value)" class="border rounded px-2 py-1">
+                                <option value="pending" ${purchase.status === 'pending' ? 'selected' : ''}>Pendente</option>
+                                <option value="confirmed" ${purchase.status === 'confirmed' ? 'selected' : ''}>Confirmado</option>
+                                <option value="cancelled" ${purchase.status === 'cancelled' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Erro ao carregar compras:', error);
+            }
+        }
+
+        // Carregar configurações
+        async function loadSettings() {
+            try {
+                const settings = await fetch(`${API_BASE}/settings`).then(r => r.json());
+                
+                Object.entries(settings).forEach(([key, value]) => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = value;
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao carregar configurações:', error);
+            }
+        }
+
+        // Salvar configurações
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const settings = {};
+            
+            // Coletar dados do formulário
+            ['site_title', 'whatsapp_number', 'primary_color', 'secondary_color', 'pix_key', 'bank_info'].forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    settings[key] = element.value;
+                }
+            });
+
+            // Upload do logo se selecionado
+            const logoFile = document.getElementById('logo_upload').files[0];
+            if (logoFile) {
+                const logoFormData = new FormData();
+                logoFormData.append('image', logoFile);
+                
+                try {
+                    const uploadResponse = await fetch(`${API_BASE}/upload`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${authToken}` },
+                        body: logoFormData
+                    });
+                    const uploadData = await uploadResponse.json();
+                    settings.logo_url = uploadData.url;
+                } catch (error) {
+                    console.error('Erro no upload do logo:', error);
+                }
+            }
+
+            try {
+                await apiCall('/settings', {
+                    method: 'PUT',
+                    body: JSON.stringify(settings)
+                });
+                alert('Configurações salvas com sucesso!');
+            } catch (error) {
+                alert('Erro ao salvar configurações');
+            }
+        });
+
+        // Modal de rifa
+        const rifaModal = document.getElementById('rifaModal');
+        const rifaForm = document.getElementById('rifaForm');
+        const addRifaBtn = document.getElementById('addRifaBtn');
+        const cancelRifaBtn = document.getElementById('cancelRifaBtn');
+
+        addRifaBtn.addEventListener('click', () => {
+            document.getElementById('rifaModalTitle').textContent = 'Nova Rifa';
+            rifaForm.reset();
+            document.getElementById('rifaId').value = '';
+            rifaModal.classList.remove('hidden');
+        });
+
+        cancelRifaBtn.addEventListener('click', () => {
+            rifaModal.classList.add('hidden');
+        });
+
+        rifaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const rifaId = document.getElementById('rifaId').value;
+            
+            formData.append('title', document.getElementById('rifaTitle').value);
+            formData.append('description', document.getElementById('rifaDescription').value);
+            formData.append('price', document.getElementById('rifaPrice').value);
+            formData.append('total_numbers', document.getElementById('rifaTotalNumbers').value);
+            formData.append('status', document.getElementById('rifaStatus').value);
+            
+            const imageFile = document.getElementById('rifaImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const endpoint = rifaId ? `/rifas/${rifaId}` : '/rifas';
+                const method = rifaId ? 'PUT' : 'POST';
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method,
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    rifaModal.classList.add('hidden');
+                    loadRifas();
+                    alert(rifaId ? 'Rifa atualizada!' : 'Rifa criada!');
+                } else {
+                    alert('Erro ao salvar rifa');
+                }
+            } catch (error) {
+                alert('Erro de conexão');
+            }
+        });
+
+        // Funções globais
+        window.editRifa = async (id) => {
+            try {
+                const rifa = await fetch(`${API_BASE}/rifas/${id}`).then(r => r.json());
+                
+                document.getElementById('rifaModalTitle').textContent = 'Editar Rifa';
+                document.getElementById('rifaId').value = rifa.id;
+                document.getElementById('rifaTitle').value = rifa.title;
+                document.getElementById('rifaDescription').value = rifa.description || '';
+                document.getElementById('rifaPrice').value = rifa.price;
+                document.getElementById('rifaTotalNumbers').value = rifa.total_numbers;
+                document.getElementById('rifaStatus').value = rifa.status;
+                
+                rifaModal.classList.remove('hidden');
+            } catch (error) {
+                alert('Erro ao carregar rifa');
+            }
+        };
+
+        window.deleteRifa = async (id) => {
+            if (confirm('Tem certeza que deseja excluir esta rifa?')) {
+                try {
+                    await apiCall(`/rifas/${id}`, { method: 'DELETE' });
+                    loadRifas();
+                    alert('Rifa excluída!');
+                } catch (error) {
+                    alert('Erro ao excluir rifa');
+                }
+            }
+        };
+
+        window.updatePurchaseStatus = async (id, status) => {
+            try {
+                await apiCall(`/purchases/${id}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status })
+                });
+                alert('Status atualizado!');
+            } catch (error) {
+                alert('Erro ao atualizar status');
+            }
+        };
+    </script>
+</body>
+</html>
